@@ -21,6 +21,50 @@ Model debug loops drift: an agent that failed a build tends to make the same gue
 
 Trust-bearing parts are deterministic code (state machine, ledger, gate executor). Creative parts stay with the model, bounded by the corridor of falsified evidence.
 
+## Design
+
+### Activation: a three-layer switch, event-driven, never polling
+
+- **Layer 1 — mount.** Declaring the plugin in `cordis.yml` starts it in `observe` mode: evidence recorded, nothing gated.
+- **Layer 2 — arm.** The moment a task contract appears (a P0 template being approved is the arming signal, recorded into the session log like plan mode), the session moves to `strict`. No contract -> pure observation; contract present -> strict. Both states are recorded, so any session can be replayed and the answer to "why was this step not gated" is a lookup, not a guess.
+- **Layer 3 — trigger.** Event-driven interception at specific boundaries only: before high-risk tool calls (pre-tool on `write`/`exec`/core changes), at step boundaries (hard gate at the end of an LLM turn), and at milestones (full verification).
+
+No polling, no per-token scanning. Listeners sit on the event stream; cost is paid only at the boundaries being gated. Arming itself is an event in the audit chain — who armed it, when, with which contract.
+
+### Division of labor: a mechanical judge, not another agent
+
+| Role | What it is | What it does |
+|---|---|---|
+| Judge | The plugin itself (plain JS, no thinking) | Parses claims, runs gates (deterministic commands), compares prediction vs result, writes the ledger, gates the next step |
+| Thinker | The session's LLM | Proposes hypotheses and discriminating experiments — structurally constrained, not free-form |
+| Infrastructure | Snapshot / git | True rollback |
+| Observer | Human / interaction | Steps in at frontier stall |
+
+Every trust-bearing decision is code: gate pass/fail vs predicted pass/fail, compared, judged. The plugin never asks a model "is this right?". The model still thinks in the same session context, but inside a structural corridor — when a gate falsifies a claim, the plugin injects a forced protocol message ("claim X was falsified by evidence E; give >=2 mutually exclusive hypotheses, each with a discriminating experiment") and enforces it two ways:
+
+- **Output-shape validation**: a reply missing fields, or hypotheses that are not mutually exclusive, is a protocol violation and does not proceed.
+- **Tool whitelisting**: the next round may only run the selected hypotheses' discriminating experiment commands; anything else is rejected.
+
+This is one brain plus an external mechanical judge — not "another agent takes over". When should a separate agent appear? At frontier stall: the in-session model's bias lives in its own context — the "confirmed" conclusion was its own, and rephrasing still enumerates its own guesses. Popper then spawns a cold subagent with no session seed, fed only the falsification ledger, to propose hypotheses from zero. Cold start discards sunk-cost bias — the correct antidote to confirmation bias. Its output writes back to the same ledger; no parallel world. (Planned — see Known limitations.)
+
+### Bounded self-evolution: four mechanisms, four iron rules
+
+The plugin evolves — but inside the skeleton, with evidence anchored outside it.
+
+- **Gate mining**: aggregate the ledger across sessions — claim classes with the highest drift rate get a recommendation to tighten their gate; gates that pass a hundred times get a recommendation to downgrade to observe mode and save tokens.
+- **Strategy bandit**: small parameters inside the correction loop (experiment aggressiveness, degradation thresholds when experiments are expensive) live in a template library; the variant with the best historical success per claim class is chosen. Parameters evolve; the skeleton is frozen.
+- **Meta-falsification (one recursive level)**: the plugin runs the same loop on itself. "Tightening gate G lowers the error rate" is a meta-claim with a prediction; cross-session aggregate metrics (escape rate, deadlock rate, throughput cost) are its gates. If the metric misses, the plugin's own claim is falsified and it must revise its gate set. Same loop, one level up, exactly one level.
+- **Failure-mode library**: claim classes that drift repeatedly become a "rap sheet", pre-loaded into later sessions' prompts and contract templates. Cross-session learning is evolution — this repository's Agent Notes and post-mortems are the existing form of this pattern.
+
+The only way recursion could self-destruct is the plugin rewriting its own verification rules. Four iron rules prevent it:
+
+1. **Skeleton frozen**: the claim -> falsify -> enumerate -> discriminate protocol cannot be changed by the plugin; only parameters and the gate set.
+2. **Meta-metrics externally computable**: the meta-loop's gates are aggregate statistics derived from session logs, never model self-assessment — no "it passed because it said so".
+3. **Change review gate**: evolution produces proposals; applying them requires human approval or an independent review agent (the existing `self-modification` capability).
+4. **Ledger append-only**: falsification records and gate history cannot be rewritten by the plugin — otherwise evolution would be self-deception.
+
+In one sentence: **evolution happens inside the skeleton; evidence is anchored outside it.** The plugin can get smarter (choose gates, tune strategy, absorb history), but it can never convince itself to remove the gate.
+
 ## Install
 
 Popper installs as a **bundle**: the package ships a `cordis.patch.yml` that inserts two plugin rows (`popper` and its `popper-invariant` companion) into a profile.
