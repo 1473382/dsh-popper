@@ -1,0 +1,30 @@
+# Popper bundle patch: enables the falsification loop on every agent in this profile.
+# Install the package (npm / tarball / git), then this layer inserts two rows:
+#   - popper            the main plugin (falsification tool + post-execute wiring)
+#   - popper-invariant  the package-invariant companion (registers @deepseek-ai/dsh-popper ownership)
+# Rows are addressed by id from later layers (profile cordis.patch.yml, --patch overlays).
+# A patch replaces a row's whole config: restate every key you mean to change.
+#
+# Renaming the npm scope (e.g. publishing as @<you>/dsh-popper) requires the same
+# replacement in `name` below, in package.json dependencies/peers, and in this file.
+- insert:
+    - id: popper
+      name: '@deepseek-ai/dsh-popper'
+      config:
+        # observe: record the model's protocol without executing gates (zero enforcement)
+        # strict : arm and execute gates; a non-empty gateRegistry and riskyTools are required
+        mode: strict
+        backstopRounds: 6
+        noveltyRejectLimit: 3
+        riskyTools: [write, exec, patch, delete]
+        gateRegistry:
+          # gate ids are task-contract vocabulary the model references; commands run locally
+          # - id: typecheck
+          #   command: pnpm run typecheck
+          #   timeoutMs: 120000
+        falsificationToolName: falsification
+        gateTimeoutMs: 120000
+        outputCapChars: 2000
+
+    - id: popper-invariant
+      name: '@deepseek-ai/dsh-popper/invariant'

@@ -1,0 +1,1 @@
+{"version":3,"file":"types-events.d.ts","sourceRoot":"","sources":["../../src/types-events.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,YAAY,CAAA;AAE7C,OAAO,QAAQ,gCAAgC,CAAC;IAC9C,UAAU,eAAe;QACvB;;;;WAIG;QACH,sBAAsB,EAAE,WAAW,CAAA;KACpC;CACF;AAED,uDAAuD;AACvD,eAAO,MAAM,0BAA0B,EAAG,sBAA+B,CAAA"}
