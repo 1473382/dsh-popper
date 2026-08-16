@@ -167,19 +167,13 @@ observe 模式 ≈ 0。strict 的开销主要来自多轮重读上下文：约 +
 5. 跨 agent 适配器（Claude Code、Codex、Piebald/Gemini CLI 走 MCP）进行中；控制器核心与 agent 无关。
 6. 账本以自定义会话事件类型 `falsification/ledger` 持久化，写入时带 envelope 的 `ignorable: true` 标记。不识别该类型的 host 会跳过该事件并正常加载会话；词汇表包含它的 host（deepseek-harness 的 `KNOWN_SESSION_EVENT_TYPES`，由 `pnpm run verify-persistence-catalog` 重新生成）可完整解读账本。把本插件合并进 harness 分支时必须执行该 catalog 步骤，否则历史加载仍然成功但账本事件保持不可见。
 
-## 发布到社区列表
+## 社区发现
 
-包已发布就绪（bundle 清单、构建产物、文件白名单）。发布：
+[GitHub `dsh-plugin` 主题](https://github.com/topics/dsh-plugin) 是自动索引聚合点；本仓库已带该主题，因此基于主题的渠道会自动收录，无需申请：
 
-```sh
-npm login           # 你的 scope 有发布权的账号
-npm publish --access public
-```
-
-然后进社区目录让用户可发现：
-
-- [HubaKing/dsh-community-plugins](https://github.com/HubaKing/dsh-community-plugins) — 插件注册表：PR 加 `@deepseek-ai/dsh-popper` + 本 README 一句话简介。
-- [oh-my-dsh](https://github.com/like-study1/Oh-My-DSH) — 合集：plugins 下加条目。
+- [Oh-My-DSH](https://github.com/like-study1/Oh-MY-DSH) 与 [dsh-community-plugins](https://github.com/HubaKing/dsh-community-plugins) 自动监测 `dsh-plugin` 主题（Oh-My-DSH 每 4 小时同步；dsh-community-plugins 通过主题、npm、dshmarket 三类渠道发现）。无需 PR。
+- [awesome-deepseek-harness](https://github.com/0xsline/awesome-deepseek-harness) 是人工策展：列表 PR 即申请，本插件的申请已提交。
+- npm 发布为可选项；每次 release 附带 tarball，可直接用于 cordis 层安装。
 - [awesome-deepseek-harness](https://github.com/0xsline/awesome-deepseek-harness) — 精选列表：加一行。
 
 官方打包指南参见 DeepSeek-Harness 仓库 [`docs/user/develop/basic/publish.md`](../../../../docs/user/develop/basic/publish.md)。
