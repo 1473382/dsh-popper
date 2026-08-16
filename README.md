@@ -21,13 +21,13 @@ Trust-bearing parts are deterministic code (state machine, ledger, gate executor
 
 Popper installs as a **bundle**: the package ships a `cordis.patch.yml` that inserts two plugin rows (`popper` and its `popper-invariant` companion) into a profile.
 
-From npm (prebuilt artifacts):
+From GitHub (recommended — the repository ships prebuilt `lib/`):
 
 ```sh
-dsh plugin --profile demo add @deepseek-ai/dsh-popper
+dsh plugin --profile demo add github:1473382/dsh-popper
 ```
 
-From a tarball:
+From a release tarball (see the [Releases](https://github.com/1473382/dsh-popper/releases) page):
 
 ```sh
 dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.5.tgz
@@ -94,7 +94,7 @@ Every ledger entry is appended to the session log as an `falsification/ledger` e
 ## Security and operational notes
 
 - Gates execute locally via `spawn(..., { shell: true })` with a timeout and head/tail output truncation. There is **no sandbox**; gate commands are arbitrary local commands and must come only from the task contract's `gateRegistry`. Treat the gate allowlist with the same care as a build script.
-- Git installs of this package are not supported: the package ships prebuilt `lib/` and does not run a self-contained `prepare` build. Use npm or a tarball.
+- Git installs work because the repository commits the prebuilt `lib/`; no `prepare` build runs. If you fork and rebuild, run `pnpm run build` in the package before installing from your fork.
 - Validation of gate commands happens at execution time, not at the parser; prefer contract-owned, pinned commands.
 
 ## Token cost

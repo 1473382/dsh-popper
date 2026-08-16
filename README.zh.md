@@ -21,13 +21,13 @@
 
 Popper 以 **bundle** 形态安装：包内带 `cordis.patch.yml`，向 profile 插入两行插件（`popper` 与 invariant 伴生 `popper-invariant`）。
 
-npm（预构建产物）：
+npm 渠道暂未发布（发布需账号两步验证，后续可用 `dsh plugin add @deepseek-ai/dsh-popper`）。当前推荐：
 
 ```sh
-dsh plugin --profile demo add @deepseek-ai/dsh-popper
+dsh plugin --profile demo add github:1473382/dsh-popper
 ```
 
-tarball：
+Release 安装包（见 [Releases](https://github.com/1473382/dsh-popper/releases) 页）tarball：
 
 ```sh
 dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.5.tgz
@@ -94,7 +94,7 @@ dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.5.tgz
 ## 安全与运维
 
 - gate 通过 `spawn(..., { shell: true })` 本地执行，带超时与 head/tail 截断。**无沙盒**；gate 命令是任意本地命令，必须只来自任务契约的 `gateRegistry`——对 gate 白名单的谨慎程度应等同构建脚本。
-- 本包不支持 git 安装：发布物是预构建 `lib/`，不带自包含 `prepare` 构建。用 npm 或 tarball。
+- git 安装可行：仓库提交了预构建 `lib/`，无需 `prepare`。若 fork 后自行重建，先在包目录跑 `pnpm run build` 再安装。npm 渠道未发布（账号需两步验证），发布后可用 `dsh plugin add @deepseek-ai/dsh-popper`。
 - gate 命令在执行点校验而非解析期；优先使用契约拥有的、固定版本的命令。
 
 ## Token 成本
