@@ -59,7 +59,7 @@ function checkLedgerIgnorable(agent: Agent): boolean {
 function loopContexts(agent: Agent): { text: string; summary: string }[] {
   return [...agent.session.events]
     .filter((e): e is SessionEvent<'user/message'> => e.type === 'user/message' && e.data.source.kind === 'plugin' && e.data.source.plugin === 'popper')
-    .map(e => {
+    .map((e) => {
       const source = e.data.source
       return { text: e.data.content.map(b => b.type === 'text' ? b.text : '').join('|'), summary: source.kind === 'plugin' && source.form === 'notice' ? source.summary : '' }
     })
