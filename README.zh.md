@@ -78,7 +78,7 @@ dsh plugin --profile demo add github:1473382/dsh-popper
 Release 安装包（见 [Releases](https://github.com/1473382/dsh-popper/releases) 页）tarball：
 
 ```sh
-dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.6.tgz
+dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.7.tgz
 ```
 
 首次 `add` 会初始化 profile（含 `@deepseek-ai/dsh-base`）；包声明了 `dsh.bundle`，`dsh` 会把它追加进 `dsh.profile.bundles`。用 `dsh --profile demo --dump-config` 核对（应出现 `# == @deepseek-ai/dsh-popper` 层），再 `dsh --profile demo` 启动。
