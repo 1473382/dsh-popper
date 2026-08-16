@@ -2,6 +2,8 @@
 
 > English version: [README.md](README.md).
 
+**它住在哪。** Popper 是 *DeepSeek Harness 插件*——不是 MCP server、不是独立 CLI、也不是 skill。把它作为 cordis 层装进 harness profile，它就在 harness 自己的 agent 循环里运行、门控真实会话。它的职责是在 DeepSeek Harness 上提升开发质量：用强制的证伪循环替代「重试式」调试，让失败的尝试变成可审计的证据而不是重复的猜测。如果你不用 DeepSeek Harness，这个插件没有可挂载的对象。
+
 > 把重试换成证伪。
 
 LLM 编程代理会「漂移」：抓住根因猜想就贴补丁，构建失败后换措辞重试同一个猜想，从不质疑猜想本身。Token 白烧、方向叠加、人在盯梢。Popper 把盲目的重试变成强制的证伪—修订：风险操作前，代理须提交可检验声明，绑定确定性门控；被证伪后须给出至少两个互斥替代假设，各配判别性实验，被证伪的实验不得复用。循环靠前沿穷尽而非重试次数收尾，每步落入只追加的 SHA-256 证据账本。把 Token 燃烧变成证据，把盯梢变成审阅。

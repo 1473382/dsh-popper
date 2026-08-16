@@ -2,6 +2,8 @@
 
 > 中文版见 [README.zh.md](README.zh.md).
 
+**Where it lives.** Popper is a *plugin for DeepSeek Harness* — not an MCP server, not a standalone CLI, not a skill. You mount it into a harness profile as a cordis layer; it runs inside the harness's own agent loop and gates real sessions. Its job is to raise development quality on DeepSeek Harness: it replaces retry-style debugging with an enforced falsification loop, so a failed attempt becomes auditable evidence instead of a repeated guess. If you do not run DeepSeek Harness, this plugin has nothing to attach to.
+
 > **Stop retrying. Start falsifying.**
 
 LLM coding agents don't fail like compilers do. They drift: the model latches onto a root-cause guess, slaps a patch, the build fails — and it retries the same guess in new wording, burning tokens while compounding the wrong direction. Popper replaces blind retry with forced falsification. Before any risky change, the agent commits an explicit, checkable claim: a root-cause hypothesis and a predicted outcome bound to a deterministic gate. The gate verifies it. When a claim is falsified, Popper demands at least two mutually exclusive replacement hypotheses, each carrying its own discriminating experiment — and a falsified experiment can never be reused. The loop ends by frontier exhaustion, not by retry counts, so "give up" is a logical state, not an arbitrary number. Every step lands in an append-only SHA-256 evidence ledger you can audit. For DeepSeek Harness agents, Popper turns token burn into evidence, and babysitting into review.
