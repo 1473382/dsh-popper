@@ -28,7 +28,7 @@ describe('falsification loop', () => {
     loop.handle({ type: 'risky-tool-before', tool: 'write' })
     const out = loop.handle({ type: 'model-claim', actor: 'model', claim: { id: 'bad', text: '', class: 'hard', assertiveness: 'claim', predictedGateId: 'typecheck', predictedOutcome: true } })
     expect(loop.currentState).toBe('awaiting-claim')
-    expect(out[0].kind).toBe('protocol')
+    expect(out[0]!.kind).toBe('protocol')
   })
 
   it('gate 证伪 -> 互斥假设 -> 判别实验通过 -> gate-passed', () => {

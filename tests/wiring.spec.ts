@@ -48,10 +48,21 @@ function ledgerEvents(agent: Agent): LedgerEntry[] {
     .map(e => e.data)
 }
 
+function ledgerEventEnvelopes(agent: Agent): SessionEvent<'falsification/ledger'>[] {
+  return [...agent.session.events].filter((e): e is SessionEvent<'falsification/ledger'> => e.type === 'falsification/ledger')
+}
+
+function checkLedgerIgnorable(agent: Agent): boolean {
+  return ledgerEventEnvelopes(agent).every(e => e.ignorable === true)
+}
+
 function loopContexts(agent: Agent): { text: string; summary: string }[] {
   return [...agent.session.events]
     .filter((e): e is SessionEvent<'user/message'> => e.type === 'user/message' && e.data.source.kind === 'plugin' && e.data.source.plugin === 'popper')
-    .map(e => ({ text: e.data.content.map(b => b.type === 'text' ? b.text : '').join('|'), summary: e.data.source.summary ?? '' }))
+    .map(e => {
+      const source = e.data.source
+      return { text: e.data.content.map(b => b.type === 'text' ? b.text : '').join('|'), summary: source.kind === 'plugin' && source.form === 'notice' ? source.summary : '' }
+    })
 }
 
 function checkChain(entries: LedgerEntry[]): boolean {
@@ -92,6 +103,7 @@ describe('wiring: strict mode through a real agent loop', () => {
     const experiment = entries.find(e => e.kind === 'experiment')
     expect(experiment?.verdict).toBe('passed')
     expect(checkChain(entries)).toBe(true)
+    expect(checkLedgerIgnorable(agent)).toBe(true)
 
     const notices = loopContexts(agent)
     expect(notices.some(n => n.text.includes('was falsified by gate') && n.text.includes('hypotheses'))).toBe(true)
@@ -229,8 +241,8 @@ describe('wiring: observe mode records without executing gates', () => {
     const notices = loopContexts(agent)
     const banners = notices.filter(n => n.text.startsWith('Popper'))
     expect(banners).toHaveLength(1)
-    expect(banners[0].text).toContain('armed')
-    expect(banners[0].text).toContain('Gates: unit')
+    expect(banners[0]!.text).toContain('armed')
+    expect(banners[0]!.text).toContain('Gates: unit')
     // 第二次 risky 调用不再重复 banner，但仍拒绝缺主张
     expect(notices.filter(n => n.summary === 'claim missing')).toHaveLength(2)
   })
@@ -250,7 +262,7 @@ describe('wiring: observe mode records without executing gates', () => {
     const notices = loopContexts(agent)
     const banners = notices.filter(n => n.text.startsWith('Popper'))
     expect(banners).toHaveLength(1)
-    expect(banners[0].text).toContain('observing')
+    expect(banners[0]!.text).toContain('observing')
     // observe 模式不产生任何门控：无 claim missing、无协议条目、无 claim
     expect(notices.some(n => n.summary === 'claim missing')).toBe(false)
     const entries = ledgerEvents(agent)

@@ -14,14 +14,14 @@ describe('ledger', () => {
     const e2 = l.append({ actor: 'model', kind: 'claim' })
     expect(l.verifyChain()).toBe(true)
     expect(e2.seq).toBe(2)
-    expect(e2.prevHash).toBe(hashEntry(l.all[0]))
+    expect(e2.prevHash).toBe(hashEntry(l.all[0]!))
   })
 
   it('篡改检测：改历史条目后 verifyChain 为 false', () => {
     const l = new Ledger('s')
     l.append({ actor: 'plugin', kind: 'contract' })
     l.append({ actor: 'model', kind: 'claim' })
-    const first = l.all[0]
+    const first = l.all[0]!
     first.message = 'tampered'
     expect(l.verifyChain()).toBe(false)
   })

@@ -106,9 +106,12 @@ function hashOf(s: string): string {
  * swallowed logging failure (the in-memory ledger still carries the entry).
  */
 function durableAppend(session: Session, entry: LedgerEntry): boolean {
-  const appendRecord = session.append.bind(session) as (event: typeof FALSIFICATION_LEDGER_EVENT, value: LedgerEntry) => void
+  // ignorable: 账本是纯信息性记录——不认识 falsification/ledger 的旧 host 读取时
+  // 安全跳过该事件而非拒绝整份日志（SessionFormatUnsupportedError）。
+  // 见 README Known Limitations 事件兼容一节与 coordinator assertEventsSupported。
+  const appendRecord = session.append.bind(session) as (event: typeof FALSIFICATION_LEDGER_EVENT, value: LedgerEntry, opts: { ignorable?: true }) => void
   try {
-    appendRecord(FALSIFICATION_LEDGER_EVENT, entry)
+    appendRecord(FALSIFICATION_LEDGER_EVENT, entry, { ignorable: true })
     return true
   } catch {
     return false

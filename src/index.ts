@@ -22,6 +22,7 @@ import type { LoopConfig } from './state-machine.ts'
 import { falsificationTool } from './tool.ts'
 import { installWiring } from './wiring.ts'
 
+export { FALSIFICATION_LEDGER_EVENT } from './types-events.ts'
 export { FalsificationLoop, isValidClaim, makeClaimId } from './state-machine.ts'
 export { Ledger } from './ledger.ts'
 export type { LoopConfig, LoopInput, LoopState } from './state-machine.ts'

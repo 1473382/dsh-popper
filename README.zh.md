@@ -163,6 +163,7 @@ observe 模式 ≈ 0。strict 的开销主要来自多轮重读上下文：约 +
 3. 快照/回滚未实现（真回滚需 git checkpoint/worktree）。
 4. 前沿停滞时的冷 subagent 反方辩手未实现，直接转人工。
 5. 跨 agent 适配器（Claude Code、Codex、Piebald/Gemini CLI 走 MCP）进行中；控制器核心与 agent 无关。
+6. 账本以自定义会话事件类型 `falsification/ledger` 持久化，写入时带 envelope 的 `ignorable: true` 标记。不识别该类型的 host 会跳过该事件并正常加载会话；词汇表包含它的 host（deepseek-harness 的 `KNOWN_SESSION_EVENT_TYPES`，由 `pnpm run verify-persistence-catalog` 重新生成）可完整解读账本。把本插件合并进 harness 分支时必须执行该 catalog 步骤，否则历史加载仍然成功但账本事件保持不可见。
 
 ## 发布到社区列表
 

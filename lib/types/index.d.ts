@@ -18,6 +18,7 @@ import z from '@deepseek-ai/schemastery';
 import { Ledger } from './ledger.ts';
 import { FalsificationLoop } from './state-machine.ts';
 import type { LoopConfig } from './state-machine.ts';
+export { FALSIFICATION_LEDGER_EVENT } from './types-events.ts';
 export { FalsificationLoop, isValidClaim, makeClaimId } from './state-machine.ts';
 export { Ledger } from './ledger.ts';
 export type { LoopConfig, LoopInput, LoopState } from './state-machine.ts';
