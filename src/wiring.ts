@@ -59,6 +59,12 @@ const experimentViolation = (command: string, allowed: string[]) =>
   `Experiment ${command} is not among your selected hypotheses. Pick one of: ${allowed.join(' | ')}.`
 const pendingNotice =
   'A falsification step is pending: commit the demanded claim or hypotheses before further risky changes.'
+const armedBanner = (gates: string[]) =>
+  `Popper armed (strict). Gates: ${gates.join(', ') || '(none — add gateRegistry)'}. Risky calls must be backed by a committed falsification claim first.`
+const observeBanner =
+  'Popper observing: recording evidence only, no gating. Set mode: strict plus gateRegistry to arm the loop.'
+const disarmedBanner =
+  'Popper disarmed: the contract was revoked, no gating. Re-arm by feeding a fresh contract-armed event.'
 const escalationQuestion =
   '证伪循环已达假设前沿耗尽：继续契约（会重置前沿预算）还是撤销契约？若无应答 UI，agent 不得继续高风险变更，直到人工 resume/disarm。'
 
@@ -121,6 +127,8 @@ function planActiveNow(session: Session): boolean {
  */
 export function installWiring(ctx: Context, config: WiringConfig): Disposable {
   const controllers = new WeakMap<Agent, SessionLoop>()
+  /** 每会话只播报一次模式状态（首个工具调用时），避免会话级噪音。 */
+  const announced = new Set<string>()
 
   /** 探测 plan-mode 是否已组合（ctx.get 读全局服务存储，可选服务豁免编译依赖）。 */
   function planComposed(): boolean {
@@ -196,6 +204,12 @@ export function installWiring(ctx: Context, config: WiringConfig): Disposable {
     const s: LoopState = c.loop.currentState
     // plan 关闭（plan-mode 已组合且 plan/mode=false）：契约暂停，门控挂起（observe 式）。
     if (config.mode === 'strict' && planComposed() && !planActiveNow(c.session)) return []
+    // 每会话一次：播报当前模式与武装状态，让安装即可见（observe 也不静默）。
+    if (!announced.has(c.session.id)) {
+      announced.add(c.session.id)
+      if (config.mode === 'strict') inject(notice(s === 'disarmed' ? disarmedBanner : armedBanner([...config.gateRegistry.keys()]), 'popper status'))
+      else inject(notice(observeBanner, 'popper status'))
+    }
     if (s === 'frontier-exhausted' || s === 'escalated') await maybeEscalate(c, exec.agent)
     if (name === config.falsificationToolName) {
       const args = exec.arguments as FalsificationCallArgs

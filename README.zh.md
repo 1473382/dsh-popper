@@ -78,7 +78,7 @@ dsh plugin --profile demo add github:1473382/dsh-popper
 Release 安装包（见 [Releases](https://github.com/1473382/dsh-popper/releases) 页）tarball：
 
 ```sh
-dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.5.tgz
+dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.6.tgz
 ```
 
 首次 `add` 会初始化 profile（含 `@deepseek-ai/dsh-base`）；包声明了 `dsh.bundle`，`dsh` 会把它追加进 `dsh.profile.bundles`。用 `dsh --profile demo --dump-config` 核对（应出现 `# == @deepseek-ai/dsh-popper` 层），再 `dsh --profile demo` 启动。
@@ -125,6 +125,7 @@ dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.5.tgz
 
 钉死的提示文本（模型可见）：
 
+- 状态（每会话首个工具调用注入一次——装上即可见，observe 模式也不静默）：`Popper armed (strict). Gates: {ids}. Risky calls must be backed by a committed falsification claim first.` / `Popper observing: recording evidence only, no gating. Set mode: strict plus gateRegistry to arm the loop.`
 - 缺主张：`You performed the risky {tool} call without committing a claim. Next risky change must start with falsification action claim: root-cause hypothesis + predicted gate outcome (gate id from the task contract).`
 - 证伪：`Claim {id} was falsified by gate {gateId}. Your next action must be falsification action hypotheses: >=2 mutually exclusive new hypotheses, each with predictedObservable and experimentCommand. Repair is only allowed as a corollary of a chosen hypothesis.`
 - 白名单拒绝：`Experiment {cmd} is not among your selected hypotheses. Pick one of: {allowed}.`

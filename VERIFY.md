@@ -118,6 +118,7 @@ Set `mode: observe`. **Expected:** the loop records claim/hypotheses/experiment 
 |---|---|---|---|
 | 1 | `dsh plugin add` | bundle layer in `--dump-config` | ☐ |
 | 3 | model tool list | `falsification` tool visible | ☐ |
+| 3b | first tool call | one-time status banner (`Popper armed (strict). Gates: ...` or `Popper observing: ...`) | ☐ |
 | 4 | risky call w/o claim | claim demand text, call not free-run | ☐ |
 | 5 | claim + `sanity` gate | gate passes, no falsification | ☐ |
 | 6 | claim + `breaker` gate | falsification notice delivered | ☐ |

@@ -208,6 +208,53 @@ describe('wiring: observe mode records without executing gates', () => {
     const entries = ledgerEvents(agent)
     expect(entries.some(e => e.kind === 'claim' && (e.message ?? '').includes('observe: recorded'))).toBe(true)
     expect(entries.some(e => e.kind === 'gate')).toBe(false)
-    expect(loopContexts(agent)).toHaveLength(0)
+    // observe 不产生任何协议拦截上下文；唯一注入是每会话一次的 status banner
+    const contexts = loopContexts(agent)
+    expect(contexts.filter(n => n.summary !== 'popper status')).toHaveLength(0)
+    expect(contexts.filter(n => n.summary === 'popper status')).toHaveLength(1)
   })
+
+  it('announces the mode banner exactly once per session, on the first tool call', async () => {
+    const ctx = await harness(baseConfig)
+    const adapter = new MockAdapter([
+      toolCallResponse('b1', 'write_probe', {}),
+      toolCallResponse('b2', 'write_probe', {}),
+      textResponse('done'),
+    ])
+    ctx.llm.registerAdapter(['mock'], adapter)
+    const agent = ctx.agentLoop.create(SessionId('banner1'), { provider: 'mock', model: 'mock' })
+    agent.followup(createUserMessage({ content: [{ type: 'text', text: 'go' }], source: { kind: 'user' } }))
+    await waitForIdle(ctx, agent)
+
+    const notices = loopContexts(agent)
+    const banners = notices.filter(n => n.text.startsWith('Popper'))
+    expect(banners).toHaveLength(1)
+    expect(banners[0].text).toContain('armed')
+    expect(banners[0].text).toContain('Gates: unit')
+    // 第二次 risky 调用不再重复 banner，但仍拒绝缺主张
+    expect(notices.filter(n => n.summary === 'claim missing')).toHaveLength(2)
+  })
+
+  it('observe mode announces observing status once but never gates', async () => {
+    const ctx = await harness({ ...baseConfig, mode: 'observe' })
+    const adapter = new MockAdapter([
+      toolCallResponse('o1', 'write_probe', {}),
+      toolCallResponse('o2', 'write_probe', {}),
+      textResponse('done'),
+    ])
+    ctx.llm.registerAdapter(['mock'], adapter)
+    const agent = ctx.agentLoop.create(SessionId('banner2'), { provider: 'mock', model: 'mock' })
+    agent.followup(createUserMessage({ content: [{ type: 'text', text: 'go' }], source: { kind: 'user' } }))
+    await waitForIdle(ctx, agent)
+
+    const notices = loopContexts(agent)
+    const banners = notices.filter(n => n.text.startsWith('Popper'))
+    expect(banners).toHaveLength(1)
+    expect(banners[0].text).toContain('observing')
+    // observe 模式不产生任何门控：无 claim missing、无协议条目、无 claim
+    expect(notices.some(n => n.summary === 'claim missing')).toBe(false)
+    const entries = ledgerEvents(agent)
+    expect(entries.filter(e => e.kind === 'protocol' || e.kind === 'claim' || e.kind === 'gate')).toHaveLength(0)
+  })
+
 })

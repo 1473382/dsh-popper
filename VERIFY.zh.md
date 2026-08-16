@@ -118,6 +118,7 @@ grep -o '"type":"falsification/ledger"' <session log> | wc -l
 |---|---|---|---|
 | 1 | `dsh plugin add` | `--dump-config` 里出现 bundle 层 | ☐ |
 | 3 | 模型列工具 | `falsification` 可见 | ☐ |
+| 3b | 首个工具调用 | 一次性状态横幅（`Popper armed (strict). Gates: ...` 或 `Popper observing: ...`） | ☐ |
 | 4 | 无主张风险调用 | 缺主张提示文本、调用不自由放行 | ☐ |
 | 5 | claim + `sanity` gate | gate 通过、无证伪 | ☐ |
 | 6 | claim + `breaker` gate | 证伪提示送达 | ☐ |

@@ -78,7 +78,7 @@ dsh plugin --profile demo add github:1473382/dsh-popper
 From a release tarball (see the [Releases](https://github.com/1473382/dsh-popper/releases) page):
 
 ```sh
-dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.5.tgz
+dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.6.tgz
 ```
 
 The first `add` initializes the profile with `@deepseek-ai/dsh-base`; `dsh` appends the bundle to `dsh.profile.bundles` because the package declares `dsh.bundle`. Verify with `dsh --profile demo --dump-config` (you should see a `# == @deepseek-ai/dsh-popper` layer) and boot with `dsh --profile demo`.
@@ -125,6 +125,7 @@ The model speaks through one tool, `falsification`, with three actions:
 
 Notice texts (pinned, model-visible):
 
+- Status (injected once per session, on the first tool call — install is visible, even in observe mode): `Popper armed (strict). Gates: {ids}. Risky calls must be backed by a committed falsification claim first.` / `Popper observing: recording evidence only, no gating. Set mode: strict plus gateRegistry to arm the loop.`
 - Missing claim: `You performed the risky {tool} call without committing a claim. Next risky change must start with falsification action claim: root-cause hypothesis + predicted gate outcome (gate id from the task contract).`
 - Falsification: `Claim {id} was falsified by gate {gateId}. Your next action must be falsification action hypotheses: >=2 mutually exclusive new hypotheses, each with predictedObservable and experimentCommand. Repair is only allowed as a corollary of a chosen hypothesis.`
 - Whitelist rejection: `Experiment {cmd} is not among your selected hypotheses. Pick one of: {allowed}.`
