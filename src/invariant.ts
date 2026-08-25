@@ -11,8 +11,14 @@ const PACKAGE_NAME = '@deepseek-ai/dsh-popper'
 
 /** Cordis companion plugin name. */
 export const name = 'popper-invariant'
-/** Service required before the companion can reserve package ownership. */
-export const inject = ['invariants']
+/**
+ * The `invariants` service is optional. Older DeepSeek Harness runtimes (for
+ * example the rc.8 bundle tree that some hosts ship) do not mount the
+ * `invariants` service. Declaring it here would leave the companion permanently
+ * `pending (waiting for service: invariants)` and block the whole profile from
+ * loading. We therefore do not require it and degrade to a no-op when absent.
+ */
+export const inject: string[] = []
 
 /**
  * No runtime invariant: the loop table is private to per-session controller
@@ -22,10 +28,16 @@ export const inject = ['invariants']
 const install: InvariantInstaller = () => {}
 
 /**
- * Register this package's invariant companion.
- * @param ctx - cordis context carrying the invariant service.
- * @returns the installed registration's disposer after setup succeeds.
+ * Register this package's invariant companion when the `invariants` service is
+ * mounted, and no-op otherwise so the plugin loads on every runtime.
+ * @param ctx - cordis context.
+ * @returns the installed registration's disposer, or `undefined` when the
+ *          `invariants` service is unavailable.
  */
-export const apply = (ctx: Context): Promise<() => void> =>
-  Promise.resolve(ctx.invariants.register(PACKAGE_NAME, install))
+export const apply = (ctx: Context): Promise<() => void> | undefined => {
+  const invariants = ctx.get('invariants', false)
+  return invariants
+    ? Promise.resolve(invariants.register(PACKAGE_NAME, install))
+    : undefined
+}
 /* jscpd:ignore-end */
