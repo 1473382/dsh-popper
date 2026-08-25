@@ -80,7 +80,7 @@ dsh plugin --profile demo add github:1473382/dsh-popper
 From a release tarball (see the [Releases](https://github.com/1473382/dsh-popper/releases) page):
 
 ```sh
-dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.7.tgz
+dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.8.tgz
 ```
 
 The first `add` initializes the profile with `@deepseek-ai/dsh-base`; `dsh` appends the bundle to `dsh.profile.bundles` because the package declares `dsh.bundle`. Verify with `dsh --profile demo --dump-config` (you should see a `# == @deepseek-ai/dsh-popper` layer) and boot with `dsh --profile demo`.
