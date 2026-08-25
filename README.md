@@ -102,7 +102,7 @@ Requirements: the host `dsh` installation provides the in-box packages (`cordis`
 | `gateTimeoutMs` | `120000` | gate execution timeout |
 | `outputCapChars` | `2000` | gate output injected back (head + tail) |
 
-`strict` with an empty `gateRegistry` or empty `riskyTools` fails loud at load.
+`strict` with an empty `gateRegistry` or empty `riskyTools` fails loud at load. The shipped `cordis.patch.yml` defaults to `mode: observe` so a bare install boots cleanly on any machine without blocking the agent; switch to `strict` plus at least one `gateRegistry` entry to enforce.
 
 Example `cordis.patch.yml` override (a later patch layer restates the whole row):
 

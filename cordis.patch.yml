@@ -5,6 +5,24 @@
 # Rows are addressed by id from later layers (profile cordis.patch.yml, --patch overlays).
 # A patch replaces a row's whole config: restate every key you mean to change.
 #
+# DEFAULT MODE IS `observe` for out-of-the-box compatibility: it records the
+# model's protocol and evidence into the ledger but enforces nothing, so a bare
+# install boots cleanly on any machine and never blocks the agent.
+#
+# To enable the falsification loop, set `mode: strict` and add the task-contract
+# gates the model may reference. NOTE: strict mode rejects an empty
+# gateRegistry fail-loud at load, so add at least one gate, e.g.:
+#
+#   config:
+#     mode: strict
+#     gateRegistry:
+#       - id: typecheck
+#         command: pnpm run typecheck
+#         timeoutMs: 120000
+#
+# Gate commands run via a shell in the harness process's working directory, so
+# they must be valid on the machine that runs the session.
+#
 # Renaming the npm scope (e.g. publishing as @<you>/dsh-popper) requires the same
 # replacement in `name` below, in package.json dependencies/peers, and in this file.
 - insert:
@@ -13,7 +31,7 @@
       config:
         # observe: record the model's protocol without executing gates (zero enforcement)
         # strict : arm and execute gates; a non-empty gateRegistry and riskyTools are required
-        mode: strict
+        mode: observe
         backstopRounds: 6
         noveltyRejectLimit: 3
         riskyTools: [write, exec, patch, delete]

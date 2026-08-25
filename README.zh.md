@@ -102,7 +102,7 @@ dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.7.tgz
 | `gateTimeoutMs` | `120000` | gate 执行超时 |
 | `outputCapChars` | `2000` | 回注模型的 gate 输出上限（head+tail） |
 
-`strict` + 空 `gateRegistry` / 空 `riskyTools` → 加载即报错（fail loud）。
+`strict` + 空 `gateRegistry` / 空 `riskyTools` → 加载即报错（fail loud）。随包附带的 `cordis.patch.yml` 默认 `mode: observe`，裸装即可在任何机器上安全启动、不阻塞 agent；要强制证伪，改成 `strict` 并至少填一个 `gateRegistry` 条目。
 
 后续 patch 层覆写示例（整行重述）：
 
