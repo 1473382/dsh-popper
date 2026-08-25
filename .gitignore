@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Release tarballs
+*.tgz
+
+# Build output (lib/ is checked in; add dist/ below if your build emits elsewhere)
+dist/
+
+# Editor / OS noise
+.DS_Store
+*.log
