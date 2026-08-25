@@ -1,5 +1,6 @@
 import { Ledger } from './ledger.ts'
 import type { Actor, GateResult, HypothesisSpec, LedgerEntry, ClaimSpec } from './types.ts'
+import { lintHypotheses } from './lint.ts'
 import { randomUUID } from 'node:crypto'
 
 export type LoopState =
@@ -149,6 +150,16 @@ export class FalsificationLoop {
 
       case 'falsified': {
         if (input.type === 'model-hypotheses') {
+          const lintFindings = lintHypotheses(input.hypotheses)
+          if (lintFindings.length > 0) {
+            this.noveltyRejects += 1
+            out.push(this.ledger.append({ actor: 'plugin', kind: 'protocol', verdict: 'unknown', message: '假设 lint 失败: ' + lintFindings.map(f => f.id).join(', ') + '（拒绝 #' + this.noveltyRejects + '），重新枚举' }))
+            if (this.noveltyRejects >= this.config.noveltyRejectLimit) {
+              this.state = 'frontier-exhausted'
+              out.push(this.ledger.append({ actor: 'plugin', kind: 'frontier', verdict: 'unknown', message: '假设前沿耗尽：连续拒绝超限' }))
+            }
+            break
+          }
           const novel = input.hypotheses
             .filter(h => !this.lastExperimentCommands.includes(h.experimentCommand))
             .filter(h => h.excludes.length >= 1)

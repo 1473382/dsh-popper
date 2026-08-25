@@ -41,6 +41,8 @@ dsh --profile demo --dump-config
 
 `sanity` 是正确主张应当扛过去的 gate；`breaker` 是错误主张应当被它证伪的 gate。重启会话（`dsh --profile demo`）并开一个新对话。
 
+真实契约里的 gate 不会像 `breaker` 这样天然能失败——按 [gate-authoring](references/gate-authoring.zh.md) 编写,过 [falsification-lint](references/falsification-lint.zh.md) 再武装。
+
 ## 3. 证明工具是模型可见的
 
 让模型列一下它的工具（或先跑一轮废话）。**预期：**能看到 `falsification` 工具，含三个动作：`claim`、`hypotheses`、`experiment`。
@@ -125,6 +127,8 @@ grep -o '"type":"falsification/ledger"' <session log> | wc -l
 | 7 | 白名单外实验 | 白名单拒绝文本 | ☐ |
 | 8 | 复用已证伪实验 | 新颖性拒绝 → 升级（Resume/Disarm 或锁存） | ☐ |
 | 9 | 会话日志 | 有序 `falsification/ledger` 链 | ☐ |
+| 9b | 对每条 gate 跑反例 | 反例非零退出、正例退出 0 | ☐ |
+| 9c | 检查假设判别 | 两假设下同一实验退出码不同 | ☐ |
 
 ## 排查
 

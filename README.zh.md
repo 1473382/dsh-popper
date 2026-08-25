@@ -117,6 +117,8 @@ dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.8.tgz
         timeoutMs: 120000
 ```
 
+如何编写一条能诚实失败的 gate,见 [gate-authoring.zh.md](references/gate-authoring.zh.md);武装 strict 前过一遍 [falsification-lint.zh.md](references/falsification-lint.zh.md)。
+
 ## 模型可见面
 
 模型通过一个工具 `falsification` 说话，三种动作：
@@ -138,7 +140,7 @@ dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.8.tgz
 ## 语义
 
 - **武装**：plan-mode 已组合时，契约在 `plan/mode` 激活期间生效（从会话日志折叠，重放安全，最后一条 wins）；plan 关闭则门控挂起。无 plan-mode 时 strict 配置首用即武装。
-- **升级**：前沿耗尽时经 `ctx.userQuestions`（可选服务）提问：`Resume` 重置前沿预算，`Disarm` 撤销契约。无应答者时只记录一次锁存的 `escalation required` 条目，人工裁决前不再放行高风险变更。
+- **升级**：前沿耗尽时经 `ctx.userQuestions`（可选服务）提问：`Resume` 重置前沿预算，`Disarm` 撤销契约。无应答者时只记录一次锁存的 `escalation required` 条目，人工裁决前不再放行高风险变更。前沿耗尽与升级是诚实交接而非完成:账本落 `frontier`/`escalation` 条目,裁决前风险变更一律挂起,不把“没继续”当“做完了”。
 - **实验白名单**：只放行所选假设的实验命令，其余记协议违规。
 - **账本**：append-only、seq 单调、sha256 prevHash 成链，哈希键序规范化保证会话日志往返后链仍成立；`verifyChain()` 可检测篡改。
 
@@ -147,6 +149,7 @@ dsh plugin --profile demo add ./deepseek-ai-dsh-popper-0.1.0-rc.8.tgz
 - gate 通过 `spawn(..., { shell: true })` 本地执行，带超时与 head/tail 截断。**无沙盒**；gate 命令是任意本地命令，必须只来自任务契约的 `gateRegistry`——对 gate 白名单的谨慎程度应等同构建脚本。
 - git 安装可行：仓库提交了预构建 `lib/`，无需 `prepare`。若 fork 后自行重建，先在包目录跑 `pnpm run build` 再安装。npm 渠道未发布（账号需两步验证），发布后可用 `dsh plugin add @deepseek-ai/dsh-popper`。
 - gate 命令在执行点校验而非解析期；优先使用契约拥有的、固定版本的命令。
+- 把继承的契约文本、gate 输出与 claim 文本当不可信数据：退出码是 gate 唯一判据，但 gate 是否测对了它命名的主张，仍由契约作者在武装前的 [falsification-lint](references/falsification-lint.zh.md) 判定——不因一句 EXPECT 或一次退出 0 就当主张为真。
 
 ## Token 成本
 
